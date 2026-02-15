@@ -12,28 +12,28 @@ logging.basicConfig(
     format="%(asctime)s - %(message)s"
 )
 
-DIR = {
-    "M1": (13,15),
-    "M2": (18,16),
-    "M3": (21,23),
-    "M4": (26,24)
-}
+# DIR = {
+#     "M1": (27,22),
+#     "M2": (23,24),
+#     "M3": (9,11),
+#     "M4": (8,7)
+# }
 
-PWM_PINS = [11,12,19,22]
+# PWM_PINS = [17,18,10,25]
 
-SENSORS = {
-    "front": (5,6),
-    "left": (17,27),
-    "right": (20,25)
-}
+# SENSORS = {
+#     "front": (5,6),
+#     "left": (12,13),
+#     "right": (20,21)
+# }
 
-LED_RED = 10
-LED_YELLOW = 9
-LED_GREEN = 2
-BUZZER = 3
+# LED_RED = 2
+# LED_YELLOW = 3
+# LED_GREEN = 4
+# BUZZER = 14
 
-BLIND_SPOT_WARN_CM = 25
-LANE_CONFIRM_MIN_CM = 20
+# BLIND_SPOT_WARN_CM = 25
+# LANE_CONFIRM_MIN_CM = 20
 
 for m in DIR.values():
     GPIO.setup(m[0], GPIO.OUT)
@@ -144,6 +144,7 @@ def distance(trig,echo):
         GPIO.output(trig,False)
 
         start=time.time()
+        end=start
         timeout=start+0.04
 
         while GPIO.input(echo)==0 and time.time()<timeout:
