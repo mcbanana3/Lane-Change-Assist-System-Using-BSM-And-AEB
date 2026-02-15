@@ -32,6 +32,9 @@ LED_YELLOW = 9
 LED_GREEN = 2
 BUZZER = 3
 
+BLIND_SPOT_WARN_CM = 25
+LANE_CONFIRM_MIN_CM = 20
+
 for m in DIR.values():
     GPIO.setup(m[0], GPIO.OUT)
     GPIO.setup(m[1], GPIO.OUT)
@@ -83,6 +86,18 @@ def stop():
         time.sleep(0.03)
 
     set_speed(0)
+
+def beep_warning(pulses=2, on_time=0.05, off_time=0.05):
+    for _ in range(pulses):
+        GPIO.output(BUZZER, True)
+        time.sleep(on_time)
+        GPIO.output(BUZZER, False)
+        time.sleep(off_time)
+
+def confirm_front_clear():
+    front = distance(*SENSORS["front"])
+    logging.info(f"Front confirm:{front}")
+    return front > LANE_CONFIRM_MIN_CM
 
 def lane_left():
     logging.info("Lane change LEFT")
@@ -182,9 +197,17 @@ try:
 
                 lane_left()
 
+                if not confirm_front_clear():
+                    stop()
+                    time.sleep(0.2)
+
             elif right>40:
 
                 lane_right()
+
+                if not confirm_front_clear():
+                    stop()
+                    time.sleep(0.2)
 
             else:
 
@@ -193,6 +216,9 @@ try:
         if closing_rate>10:
 
             forward(30)
+
+        if current_speed > 0 and (left < BLIND_SPOT_WARN_CM or right < BLIND_SPOT_WARN_CM):
+            beep_warning()
 
         time.sleep(0.1)
 
