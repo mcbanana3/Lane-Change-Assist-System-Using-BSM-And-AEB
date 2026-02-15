@@ -94,6 +94,14 @@ def beep_warning(pulses=2, on_time=0.05, off_time=0.05):
         GPIO.output(BUZZER, False)
         time.sleep(off_time)
 
+def beep_caution():
+    # Slow beep for caution
+    beep_warning(pulses=1, on_time=0.12, off_time=0.12)
+
+def beep_emergency():
+    # Fast beeps for emergency
+    beep_warning(pulses=3, on_time=0.04, off_time=0.04)
+
 def confirm_front_clear():
     front = distance(*SENSORS["front"])
     logging.info(f"Front confirm:{front}")
@@ -176,18 +184,25 @@ try:
 
             forward(60)
 
+            GPIO.output(BUZZER, False)
+
         elif front>25:
 
             forward(40)
+
+            beep_caution()
 
         elif front>20:
 
             forward(25)
 
+            beep_caution()
+
         else:
 
             GPIO.output(LED_RED,True)
-            GPIO.output(BUZZER,True)
+
+            beep_emergency()
 
             stop()
 
