@@ -65,27 +65,33 @@ def set_speed(speed):
     for p in PWM:
         p.ChangeDutyCycle(speed)
 
+def set_speed_ramped(target_speed, step=5, delay=0.03):
+    global current_speed
+    target_speed = max(0, min(100, int(target_speed)))
+
+    if target_speed == current_speed:
+        return
+
+    if target_speed > current_speed:
+        for speed in range(current_speed, target_speed + 1, step):
+            set_speed(speed)
+            time.sleep(delay)
+    else:
+        for speed in range(current_speed, target_speed - 1, -step):
+            set_speed(speed)
+            time.sleep(delay)
+
 def set_dir(motor,state):
     GPIO.output(DIR[motor][0],state[0])
     GPIO.output(DIR[motor][1],state[1])
 
 def forward(speed):
-    set_speed(speed)
+    set_speed_ramped(speed)
     for m in DIR:
         set_dir(m,(1,0))
 
 def stop():
-    global current_speed
-    if current_speed <= 0:
-        set_speed(0)
-        return
-
-    # Soft-stop ramp to reduce sudden braking
-    for speed in range(current_speed, -1, -5):
-        set_speed(speed)
-        time.sleep(0.03)
-
-    set_speed(0)
+    set_speed_ramped(0)
 
 def beep_warning(pulses=2, on_time=0.05, off_time=0.05):
     for _ in range(pulses):
