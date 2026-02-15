@@ -214,7 +214,11 @@ try:
 
             time.sleep(0.5)
 
-            if left>40:
+            if closing_rate < 0:
+                logging.info("Lane change blocked: front improving")
+                stop()
+
+            elif left>40:
 
                 lane_left()
 
