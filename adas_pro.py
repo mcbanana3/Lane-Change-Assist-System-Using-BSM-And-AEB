@@ -53,7 +53,12 @@ for p in PWM:
 
 GPIO.output(LED_GREEN,True)
 
+current_speed = 0
+
 def set_speed(speed):
+    global current_speed
+    speed = max(0, min(100, int(speed)))
+    current_speed = speed
     for p in PWM:
         p.ChangeDutyCycle(speed)
 
@@ -67,6 +72,16 @@ def forward(speed):
         set_dir(m,(1,0))
 
 def stop():
+    global current_speed
+    if current_speed <= 0:
+        set_speed(0)
+        return
+
+    # Soft-stop ramp to reduce sudden braking
+    for speed in range(current_speed, -1, -5):
+        set_speed(speed)
+        time.sleep(0.03)
+
     set_speed(0)
 
 def lane_left():
